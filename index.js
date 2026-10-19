@@ -8,16 +8,21 @@ const AppError = require("./src/utils/appError");
 // connect to mongo db atlas
 connectDB();
 
+app.use(express.json());
+
 // router handler
 app.use("/api/posts", postsRouter);
 
 // route not exist
-app.use("/*splat", (req, res, next) => {
+app.all("/*splat", (req, res, next) => {
   next(new AppError("this route is not available on the server", 404));
 });
 
 // Global error handler
 app.use((err, req, res, next) => {
+  if (err.name === "CastError") {
+    err = new AppError("invalid post id", 400);
+  }
   const statusCode = err.statusCode || 500;
   res.status(statusCode).json({
     status: err.status || "error",
