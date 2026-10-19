@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const connectDB = require("./src/config/db");
 const postsRouter = require("./src/routes/posts.route");
+const userRouter = require("./src/routes/user.route");
 const AppError = require("./src/utils/appError");
 
 // connect to mongo db atlas
@@ -12,6 +13,7 @@ app.use(express.json());
 
 // router handler
 app.use("/api/posts", postsRouter);
+app.use("/api/auth", userRouter);
 
 // route not exist
 app.all("/*splat", (req, res, next) => {
