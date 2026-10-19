@@ -37,4 +37,18 @@ const loginRules = [
   body("password").trim().notEmpty().withMessage("password is required"),
 ];
 
+const updateMeRules = [
+  body("name")
+    .optional()
+    .trim()
+    .isLength({ min: 2 })
+    .withMessage("name must be at least 2 characters"),
+  body("email")
+    .optional()
+    .trim()
+    .isEmail()
+    .withMessage("email is not valid")
+    .normalizeEmail(),
+];
+
 module.exports = { registerRules, loginRules };
