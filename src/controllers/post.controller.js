@@ -12,9 +12,9 @@ const getPosts = asyncHandler(async (req, res, next) => {
   const { status } = query;
   let filter = {};
   if (status) {
-    if (!["draft", "published"].includes(status)) {
-      return next(new AppError("status must be draft or published", 400));
-    }
+    // if (!["draft", "published"].includes(status)) {
+    //   return next(new AppError("status must be draft or published", 400));
+    // }
 
     filter.status = status;
   }
@@ -67,7 +67,13 @@ const updatePost = asyncHandler(async (req, res, next) => {
     return next(new AppError("post not found", 404));
   }
 
-  res.status(200).json({ status: "success", data: { post: updatedPost } });
+  res
+    .status(200)
+    .json({
+      status: "success",
+      message: "post updated successfully",
+      data: { post: updatedPost },
+    });
 });
 
 const deletePost = asyncHandler(async (req, res, next) => {

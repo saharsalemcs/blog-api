@@ -12,9 +12,11 @@ const postSchema = new mongoose.Schema(
     coverImage: { type: String, default: "" },
     status: {
       type: String,
-      enum: ["draft", "published"],
+      enum: {
+        values: ["draft", "published"],
+        message: "post status should be draft or published",
+      },
       default: "draft",
-      message: "post status should be draft or published",
     },
     tags: { type: [String], default: [] },
     // author:

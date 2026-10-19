@@ -20,10 +20,22 @@ app.all("/*splat", (req, res, next) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  if (err.name === "CastError") {
-    err = new AppError("invalid post id", 400);
+  // console.log(err.name);
+  // console.log(err.errors);
+  if (err.name === "ValidationError") {
+    const message = Object.values(err.errors)
+      .map((e) => e.message)
+      .join(", ");
+    err = new AppError(message, 400);
   }
+
+  if (err.type === "entity.parse.failed") {
+    err = new AppError("invalid JSON in request body", 400);
+  }
+
   const statusCode = err.statusCode || 500;
+  if (!err.isOperational) console.error(err);
+
   res.status(statusCode).json({
     status: err.status || "error",
     message: err.isOperational ? err.message : "Something went wrong",
