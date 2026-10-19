@@ -19,7 +19,11 @@ const postSchema = new mongoose.Schema(
       default: "draft",
     },
     tags: { type: [String], default: [] },
-    // author:
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "author is required"],
+    },
   },
   {
     timestamps: true, // createdAt , updatedAt
