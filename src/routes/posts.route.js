@@ -7,17 +7,24 @@ const {
   updatePostRules,
 } = require("../validators/post.validator");
 const validate = require("../middlewares/validate");
+const { protect } = require("../middlewares/auth");
 const router = express.Router();
 
 router
   .route("/")
   .get(getPostsRules, validate, postControllers.getPosts)
-  .post(createPostRules, validate, postControllers.createPost);
+  .post(protect, createPostRules, validate, postControllers.createPost);
 
 router
   .route("/:postId")
   .get(postIdRule, validate, postControllers.getPost)
-  .patch(postIdRule, updatePostRules, validate, postControllers.updatePost)
-  .delete(postIdRule, validate, postControllers.deletePost);
+  .patch(
+    protect,
+    postIdRule,
+    updatePostRules,
+    validate,
+    postControllers.updatePost,
+  )
+  .delete(protect, postIdRule, validate, postControllers.deletePost);
 
 module.exports = router;

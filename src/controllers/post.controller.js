@@ -12,14 +12,14 @@ const getPosts = asyncHandler(async (req, res, next) => {
   const { status } = query;
   let filter = {};
   if (status) {
-    // if (!["draft", "published"].includes(status)) {
-    //   return next(new AppError("status must be draft or published", 400));
-    // }
-
     filter.status = status;
   }
 
-  const posts = await Post.find(filter, { __v: false }).limit(limit).skip(skip);
+  const posts = await Post.find(filter, { __v: false })
+    .populate("author", "name")
+    .limit(limit)
+    .skip(skip);
+
   res
     .status(200)
     .json({ status: "success", results: posts.length, data: { posts } });
@@ -43,6 +43,7 @@ const createPost = asyncHandler(async (req, res, next) => {
     status,
     tags,
     coverImage,
+    author: req.user._id,
   });
 
   res.status(201).json({
@@ -54,35 +55,35 @@ const createPost = asyncHandler(async (req, res, next) => {
 });
 
 const updatePost = asyncHandler(async (req, res, next) => {
-  const postId = req.params.postId;
+  const post = await Post.findById(req.params.postId);
+  if (!post) return next(new AppError("post not found", 404));
 
-  const updatedPost = await Post.findByIdAndUpdate(
-    postId,
-    { $set: { ...req.body } },
-    { new: true, runValidators: true },
-    // runValidators => apply schema validation rules on the updated post
-  );
-
-  if (!updatedPost) {
-    return next(new AppError("post not found", 404));
+  const isOwner = post.author.equals(req.user._id);
+  if (!isOwner && req.user.role !== "admin") {
+    return next(new AppError("you can only edit your own posts", 403));
   }
 
-  res
-    .status(200)
-    .json({
-      status: "success",
-      message: "post updated successfully",
-      data: { post: updatedPost },
-    });
+  const { title, content, status, tags, coverImage } = req.body;
+  post.set({ title, content, status, tags, coverImage });
+  await post.save();
+
+  res.status(200).json({
+    status: "success",
+    message: "post updated successfully",
+    data: { post },
+  });
 });
 
 const deletePost = asyncHandler(async (req, res, next) => {
-  const postId = req.params.postId;
-  const result = await Post.deleteOne({ _id: postId });
+  const post = await Post.findById(req.params.postId);
+  if (!post) return next(new AppError("post not found", 404));
 
-  if (result.deletedCount === 0) {
-    return next(new AppError("post not found", 404));
+  const isOwner = post.author.equals(req.user._id);
+  if (!isOwner && req.user.role !== "admin") {
+    return next(new AppError("you can only delete your own posts", 403));
   }
+
+  await post.deleteOne();
   res
     .status(200)
     .json({ status: "success", message: "post deleted successfully" });

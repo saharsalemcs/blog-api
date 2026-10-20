@@ -3,7 +3,8 @@ const express = require("express");
 const app = express();
 const connectDB = require("./src/config/db");
 const postsRouter = require("./src/routes/posts.route");
-const userRouter = require("./src/routes/user.route");
+const userRouter = require("./src/routes/auth.route");
+const usersRouter = require("./src/routes/users.route");
 const AppError = require("./src/utils/appError");
 
 // connect to mongo db atlas
@@ -13,6 +14,7 @@ app.use(express.json());
 
 // router handler
 app.use("/api/posts", postsRouter);
+app.use("/api/users", usersRouter);
 app.use("/api/auth", userRouter);
 
 // route not exist
@@ -22,13 +24,24 @@ app.all("/*splat", (req, res, next) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  // console.log(err.name);
-  // console.log(err.errors);
   if (err.name === "ValidationError") {
     const message = Object.values(err.errors)
       .map((e) => e.message)
       .join(", ");
     err = new AppError(message, 400);
+  }
+
+  if (err.code === 11000) {
+    const field = Object.keys(err.keyValue)[0];
+    err = new AppError(`${field} already exists`, 409);
+  }
+
+  if (err.name === "JsonWebTokenError") {
+    err = new AppError("invalid token, please log in again", 401);
+  }
+
+  if (err.name === "TokenExpiredError") {
+    err = new AppError("token expired, please log in again", 401);
   }
 
   if (err.type === "entity.parse.failed") {
