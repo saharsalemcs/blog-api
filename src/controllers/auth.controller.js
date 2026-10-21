@@ -16,14 +16,18 @@ const register = asyncHandler(async (req, res, next) => {
   }
 
   const { name, email, password } = req.body;
-  console.log("req.file ->", req.file);
 
   const existedUser = await User.findOne({ email });
   if (existedUser) {
     return next(new AppError("user already exists", 400));
   }
 
-  const user = await User.create({ name, email, password });
+  const user = await User.create({
+    name,
+    email,
+    password,
+    avatar: req.file ? `uploads/avatars/${req.file.filename}` : undefined,
+  });
 
   const token = await generateToken(user._id);
   user.password = undefined;

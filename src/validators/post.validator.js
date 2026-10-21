@@ -19,16 +19,9 @@ const createPostRules = [
 
   body("tags")
     .optional()
+    .customSanitizer((v) => (Array.isArray(v) ? v : [v]))
     .isArray()
-    .withMessage("tags must be an array")
-    .bail()
-    .custom((tags) => tags.every((t) => typeof t === "string"))
-    .withMessage("each tag must be a string"),
-
-  body("coverImage")
-    .optional({ values: "falsy" })
-    .isURL()
-    .withMessage("coverImage must be a valid URL"),
+    .withMessage("tags must be an array"),
 ];
 
 const updatePostRules = [
@@ -51,12 +44,11 @@ const updatePostRules = [
     .isIn(STATUSES)
     .withMessage("status must be draft or published"),
 
-  body("tags").optional().isArray().withMessage("tags must be an array"),
-
-  body("coverImage")
-    .optional({ values: "falsy" })
-    .isURL()
-    .withMessage("coverImage must be a valid URL"),
+  body("tags")
+    .optional()
+    .customSanitizer((v) => (Array.isArray(v) ? v : [v]))
+    .isArray()
+    .withMessage("tags must be an array"),
 ];
 
 const postIdRule = [param("postId").isMongoId().withMessage("invalid post id")];

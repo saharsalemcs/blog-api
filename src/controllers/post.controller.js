@@ -36,7 +36,10 @@ const getPost = asyncHandler(async (req, res, next) => {
 });
 
 const createPost = asyncHandler(async (req, res, next) => {
-  const { title, content, status, tags, coverImage } = req.body;
+  const { title, content, status, tags } = req.body;
+
+  const coverImage = req.file ? `uploads/covers/${req.file.filename}` : "";
+
   const newPost = await Post.create({
     title,
     content,
@@ -63,7 +66,11 @@ const updatePost = asyncHandler(async (req, res, next) => {
     return next(new AppError("you can only edit your own posts", 403));
   }
 
-  const { title, content, status, tags, coverImage } = req.body;
+  const { title, content, status, tags } = req.body;
+  const coverImage = req.file
+    ? `uploads/covers/${req.file.filename}`
+    : undefined;
+
   post.set({ title, content, status, tags, coverImage });
   await post.save();
 

@@ -5,6 +5,8 @@ const validate = (req, res, next) => {
   const errors = validationResult(req);
   if (errors.isEmpty()) return next();
 
+  if (req.file) fs.unlink(req.file.path, () => {});
+
   const message = errors
     .array()
     .map((e) => e.msg)

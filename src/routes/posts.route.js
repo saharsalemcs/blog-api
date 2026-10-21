@@ -9,17 +9,25 @@ const {
 const validate = require("../middlewares/validate");
 const { protect } = require("../middlewares/auth");
 const router = express.Router();
+const { uploadCover } = require("../middlewares/upload");
 
 router
   .route("/")
   .get(getPostsRules, validate, postControllers.getPosts)
-  .post(protect, createPostRules, validate, postControllers.createPost);
+  .post(
+    protect,
+    uploadCover,
+    createPostRules,
+    validate,
+    postControllers.createPost,
+  );
 
 router
   .route("/:postId")
   .get(postIdRule, validate, postControllers.getPost)
   .patch(
     protect,
+    uploadCover,
     postIdRule,
     updatePostRules,
     validate,
