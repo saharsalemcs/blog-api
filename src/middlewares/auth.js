@@ -27,6 +27,8 @@ const allowTo =
     if (!roles.includes(req.user.role)) {
       return next(new AppError("you do not have permission", 403));
     }
+
+    next();
   };
 
 module.exports = { protect, allowTo };
