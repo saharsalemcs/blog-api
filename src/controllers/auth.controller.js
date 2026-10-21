@@ -12,7 +12,7 @@ const register = asyncHandler(async (req, res, next) => {
       .array()
       .map((e) => e.msg)
       .join(", ");
-    next(new AppError(message, 400));
+    return next(new AppError(message, 400));
   }
 
   const { name, email, password } = req.body;
@@ -20,12 +20,12 @@ const register = asyncHandler(async (req, res, next) => {
 
   const existedUser = await User.findOne({ email });
   if (existedUser) {
-    next(new AppError("user already exists", 400));
+    return next(new AppError("user already exists", 400));
   }
 
   const user = await User.create({ name, email, password });
 
-  const token = generateToken(user._id);
+  const token = await generateToken(user._id);
   user.password = undefined;
 
   res.status(201).json({ status: "success", token, data: { user } });
@@ -39,7 +39,7 @@ const login = asyncHandler(async (req, res, next) => {
     return next(new AppError("invalid email or password", 401));
   }
 
-  const token = generateToken(user._id);
+  const token = await generateToken(user._id);
   user.password = undefined;
 
   res.status(200).json({ status: "success", token, data: { user } });

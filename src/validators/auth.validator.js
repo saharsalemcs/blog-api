@@ -17,7 +17,6 @@ const registerRules = [
     .withMessage("email is not valid")
     .normalizeEmail(),
   body("password")
-    .trim()
     .notEmpty()
     .withMessage("password is required")
     .bail()
@@ -34,7 +33,7 @@ const loginRules = [
     .isEmail()
     .withMessage("email is not valid")
     .normalizeEmail(),
-  body("password").trim().notEmpty().withMessage("password is required"),
+  body("password").notEmpty().withMessage("password is required"),
 ];
 
 const updateMeRules = [
@@ -51,4 +50,4 @@ const updateMeRules = [
     .normalizeEmail(),
 ];
 
-module.exports = { registerRules, loginRules };
+module.exports = { registerRules, loginRules, updateMeRules };

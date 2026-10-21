@@ -24,15 +24,19 @@ const getUser = asyncHandler(async (req, res, next) => {
 });
 
 const updateMe = asyncHandler(async (req, res) => {
-  const { name, email } = req.body;
+  const { name } = req.body;
   const userId = req.user._id;
   const user = await User.findByIdAndUpdate(
     userId,
-    { name, email },
+    { name },
     { new: true, runValidators: true },
   );
 
-  res.status(200).json({ status: "success", data: { user } });
+  res.status(200).json({
+    status: "success",
+    message: "user updated successfully",
+    data: { user },
+  });
 });
 
 const deleteUser = asyncHandler(async (req, res, next) => {
